@@ -38,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
-        http.authorizeRequests().antMatchers("/", "/api/**").permitAll()
+        http.authorizeRequests().antMatchers("/", "/register", "/api/**").permitAll()
                 .anyRequest().authenticated();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
@@ -48,9 +48,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         SecurityFilterChain restChain = new DefaultSecurityFilterChain(
                 new NegatedRequestMatcher(new OrRequestMatcher(
                         new AntPathRequestMatcher("/login"),
-                        new AntPathRequestMatcher("/forgotpassword"),
+                        new AntPathRequestMatcher("/logout"),
                         new AntPathRequestMatcher("/register"),
-                        new AntPathRequestMatcher("/test"),
+                        new AntPathRequestMatcher("/forgotpassword"),
                         new AntPathRequestMatcher("/api-docs"),
                         new AntPathRequestMatcher("/v2/api-docs"),
                         new AntPathRequestMatcher("/swagger-ui.html"),

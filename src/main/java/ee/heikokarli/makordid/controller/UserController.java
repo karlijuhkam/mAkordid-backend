@@ -1,11 +1,15 @@
 package ee.heikokarli.makordid.controller;
 
+import ee.heikokarli.makordid.data.dto.request.auth.ForgotPasswordRequest;
 import ee.heikokarli.makordid.data.dto.request.auth.LoginRequest;
+import ee.heikokarli.makordid.data.dto.request.auth.RegisterRequest;
+import ee.heikokarli.makordid.data.dto.response.GenericMessageResponse;
 import ee.heikokarli.makordid.data.dto.response.auth.LoginResponse;
 import ee.heikokarli.makordid.data.dto.response.error.ErrorResponse;
 import ee.heikokarli.makordid.data.entity.auth.AuthToken;
 import ee.heikokarli.makordid.data.entity.user.User;
 import ee.heikokarli.makordid.exception.BadRequestException;
+import ee.heikokarli.makordid.exception.user.UserNotFoundException;
 import ee.heikokarli.makordid.service.AuthenticationService;
 import ee.heikokarli.makordid.service.UserService;
 import io.swagger.annotations.Api;
@@ -19,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -60,17 +65,42 @@ public class UserController extends AbstractApiController {
         throw new BadRequestException("Invalid email/password");
     }
 
-    @RequestMapping(path = "/clients", method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('admin')")
-    public void createClient() {
-        System.out.println("Admin");
+    @PostMapping("/logout")
+    public ResponseEntity logout() {
+        authenticationService.removeToken(userService.getCurrentUserDetails().getToken());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/test")
-    public void showText() {
-        System.out.println("Tere kõik!");
+    @PostMapping("/forgotpassword")
+    @ApiOperation(
+            value = "User password recovery",
+            tags = "User"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "User does not exist", response = ErrorResponse.class)
+    })
+    public ResponseEntity<GenericMessageResponse> forgotPassword(@RequestBody ForgotPasswordRequest request) throws MessagingException {
+        String email = request.getEmail();
+        User user = userService.getUserByEmail(email);
+        if (user != null) {
+            userService.generateNewPassword(user);
+            return new ResponseEntity<>(new GenericMessageResponse("New password sent to " + user.getEmail()), HttpStatus.OK);
+        } else {
+            throw new UserNotFoundException();
+        }
     }
 
-
+    @PostMapping("/register")
+    @ApiOperation(
+            value = "User registration",
+            tags = "User"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "User does not exist", response = ErrorResponse.class)
+    })
+    public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest request) throws MessagingException {
+        User user = userService.register(request);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
 }

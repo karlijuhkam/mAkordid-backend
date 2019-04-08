@@ -5,13 +5,13 @@ CREATE TYPE active_status AS ENUM ('active', 'temporarily_inactive', 'inactive')
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS user_acc (
   id SERIAL NOT NULL PRIMARY KEY,
-  username text NOT NULL,
+  username text NOT NULL UNIQUE,
   password text NOT NULL,
   first_name text NULL,
   last_name text NULL,
   age INT NULL,
   phone text NULL,
-  email text NULL,
+  email text NOT NULL UNIQUE,
   status active_status NOT NULL DEFAULT 'active',
   create_date TIMESTAMP without TIME ZONE DEFAULT now() NOT NULL,
   update_date TIMESTAMP without TIME ZONE DEFAULT now() NOT NULL

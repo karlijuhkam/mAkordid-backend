@@ -21,7 +21,6 @@ public class AuthenticationService {
     }
 
     public AuthToken getToken(String token) {
-        System.out.println(token);
         return authTokenRepository.findById(token).orElse(null);
     }
 
@@ -37,6 +36,8 @@ public class AuthenticationService {
     }
 
     public void removeToken(AuthToken token) {
+
+        System.out.println(token);
         authTokenRepository.delete(token);
     }
 }

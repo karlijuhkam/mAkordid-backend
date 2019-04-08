@@ -22,6 +22,7 @@ public class MakordidUserDetailsService implements UserDetailsService {
     public org.springframework.security.core.userdetails.UserDetails loadUserByAccessToken(String token) throws BadRequestException {
 
         AuthToken authToken = authenticationService.getToken(token);
+        System.out.println(token);
         if (authToken == null) {
             throw new TokenNotFoundException("Token " + token + " not found");
         }
