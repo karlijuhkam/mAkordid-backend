@@ -1,6 +1,16 @@
 version: '2'
 
 services:
+
+  client:
+    container_name: client
+    build: ../mAkord
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+
+
   server:
     container_name: server
     build: ./
