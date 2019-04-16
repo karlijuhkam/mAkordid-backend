@@ -3,9 +3,11 @@ package ee.heikokarli.makordid.controller;
 import ee.heikokarli.makordid.data.dto.request.auth.ForgotPasswordRequest;
 import ee.heikokarli.makordid.data.dto.request.auth.LoginRequest;
 import ee.heikokarli.makordid.data.dto.request.auth.RegisterRequest;
+import ee.heikokarli.makordid.data.dto.request.user.PatchUserRequest;
 import ee.heikokarli.makordid.data.dto.response.GenericMessageResponse;
 import ee.heikokarli.makordid.data.dto.response.auth.LoginResponse;
 import ee.heikokarli.makordid.data.dto.response.error.ErrorResponse;
+import ee.heikokarli.makordid.data.dto.user.UserDto;
 import ee.heikokarli.makordid.data.entity.auth.AuthToken;
 import ee.heikokarli.makordid.data.entity.user.User;
 import ee.heikokarli.makordid.exception.BadRequestException;
@@ -47,18 +49,18 @@ public class UserController extends AbstractApiController {
     @PostMapping("/login")
     @ApiOperation(
             value = "User login",
-            tags = "User"
+            tags = "Users"
     )
     @ApiResponses(value = {
             @ApiResponse(code = HttpServletResponse.SC_BAD_REQUEST, message = "Invalid email/password", response = ErrorResponse.class)
     })
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        String username = loginRequest.getUsername();
+        String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
-        User user = userService.getUserByUsername(username);
+        User user = userService.getUserByEmail(email);
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
 
-            AuthToken token = authenticationService.saveToken(user.getUsername());
+            AuthToken token = authenticationService.saveToken(user.getEmail());
 
             return new ResponseEntity<>(new LoginResponse(token, user), HttpStatus.OK);
         }
@@ -66,6 +68,13 @@ public class UserController extends AbstractApiController {
     }
 
     @PostMapping("/logout")
+    @ApiOperation(
+            value = "User logout",
+            tags = "Users"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
+    })
     public ResponseEntity logout() {
         authenticationService.removeToken(userService.getCurrentUserDetails().getToken());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -101,6 +110,19 @@ public class UserController extends AbstractApiController {
     public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest request) throws MessagingException {
         User user = userService.register(request);
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @ApiOperation(
+            value = "Modify current user",
+            tags = "Users"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
+    })
+    @RequestMapping(path = "/profile", method = RequestMethod.PATCH)
+    public ResponseEntity<UserDto> patchCurrentUser(@Valid @RequestBody PatchUserRequest request){
+        User user = userService.modifyUser(userService.getCurrentUser(), request);
+        return new ResponseEntity<>(new UserDto(user), HttpStatus.OK);
     }
 
 }

@@ -13,7 +13,7 @@ public class AuthToken implements Serializable {
 
     @Id
     private String id;
-    private String username;
+    private String email;
     private Date expiry;
 
 }

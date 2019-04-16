@@ -48,7 +48,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         SecurityFilterChain restChain = new DefaultSecurityFilterChain(
                 new NegatedRequestMatcher(new OrRequestMatcher(
                         new AntPathRequestMatcher("/login"),
-                        new AntPathRequestMatcher("/logout"),
                         new AntPathRequestMatcher("/register"),
                         new AntPathRequestMatcher("/forgotpassword"),
                         new AntPathRequestMatcher("/api-docs"),

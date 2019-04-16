@@ -1,10 +1,14 @@
 package ee.heikokarli.makordid.service;
 
 import ee.heikokarli.makordid.data.dto.request.auth.RegisterRequest;
+import ee.heikokarli.makordid.data.dto.request.user.PatchUserRequest;
 import ee.heikokarli.makordid.data.entity.user.Role;
 import ee.heikokarli.makordid.data.entity.user.User;
 import ee.heikokarli.makordid.data.repository.user.RoleRepository;
 import ee.heikokarli.makordid.data.repository.user.UserRepository;
+import ee.heikokarli.makordid.exception.BadRequestException;
+import ee.heikokarli.makordid.exception.user.PasswordTooShortException;
+import ee.heikokarli.makordid.exception.user.UserAlreadyExistsException;
 import ee.heikokarli.makordid.exception.user.UserNotFoundException;
 import ee.heikokarli.makordid.security.UserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,40 +20,37 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import java.security.SecureRandom;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
 public class UserService {
 
     private UserRepository userRepository;
-    private BCryptPasswordEncoder passwordEncoder;
-    private SecureRandom random;
-    private EmailService emailService;
     private RoleRepository roleRepository;
+    private BCryptPasswordEncoder passwordEncoder;
+    private EmailService emailService;
+    private SecureRandom random;
     private String randomAlphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     @Autowired
     public UserService(UserRepository userRepository,
+                       BCryptPasswordEncoder encoder,
                        EmailService emailService,
-                       RoleRepository roleRepository,
-                       BCryptPasswordEncoder encoder) {
+                       RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = encoder;
         this.emailService = emailService;
-        this.roleRepository = roleRepository;
         this.random = new SecureRandom();
-    }
-
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
     }
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     public User getCurrentUser() {
@@ -60,10 +61,41 @@ public class UserService {
 
     public UserDetails getCurrentUserDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println(authentication);
-        System.out.println("***********************");
-        System.out.println(authentication.getPrincipal());
         return (UserDetails) authentication.getPrincipal();
+    }
+
+    public List<Role> getAllRoles(){
+        return roleRepository.findAll();
+    }
+
+    public User modifyUser(User user, PatchUserRequest request) {
+        if (request.getPassword() != null) {
+            if (request.getOldPassword() == null || !passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+                throw new BadRequestException("Vale parool!");
+            }
+            if (request.getPassword().length() < 8) {
+                throw new PasswordTooShortException();
+            }
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        if (request.getFirstName() != null) {
+            user.setFirstName(request.getFirstName());
+        }
+
+        if (request.getLastName() != null) {
+            user.setLastName(request.getLastName());
+        }
+
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
+
+        if (request.getAge() != null) {
+            user.setAge(request.getAge());
+        }
+
+        return userRepository.save(user);
     }
 
     public void generateNewPassword(User user) throws MessagingException {
@@ -79,14 +111,30 @@ public class UserService {
     }
 
     public User register(RegisterRequest request) throws MessagingException {
+
+        User user = new User();
+
+        if (request.getEmail() != null) {
+            User userCheck = getUserByEmail(request.getEmail());
+            if (userCheck != null) {
+                throw new UserAlreadyExistsException("Sellise emailiga kasutaja on juba olemas!");
+            }
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getUsername() != null) {
+            User userCheck = getUserByUsername(request.getUsername());
+            if (userCheck != null) {
+                throw new UserAlreadyExistsException("See kasutajanimi on juba kasutusel!");
+            }
+            user.setEmail(request.getEmail());
+        }
+
         Set<Role> roles = new HashSet<>();
         roles.add(roleRepository.findByName("user"));
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
+        user.setRoles(roles);
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
-        user.setRoles(roles);
         user.setStatus(User.UserStatus.active);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         emailService.sendMail("mAkordid", user.getEmail(),

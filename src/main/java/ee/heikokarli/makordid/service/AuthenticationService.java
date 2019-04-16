@@ -26,7 +26,7 @@ public class AuthenticationService {
 
     public AuthToken saveToken(String username) {
         AuthToken authToken = new AuthToken();
-        authToken.setUsername(username);
+        authToken.setEmail(username);
         final String token = UUID.randomUUID().toString();
         authToken.setId(token);
         Calendar now = Calendar.getInstance();
@@ -36,8 +36,6 @@ public class AuthenticationService {
     }
 
     public void removeToken(AuthToken token) {
-
-        System.out.println(token);
         authTokenRepository.delete(token);
     }
 }

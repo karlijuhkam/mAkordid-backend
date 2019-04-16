@@ -22,14 +22,13 @@ public class MakordidUserDetailsService implements UserDetailsService {
     public org.springframework.security.core.userdetails.UserDetails loadUserByAccessToken(String token) throws BadRequestException {
 
         AuthToken authToken = authenticationService.getToken(token);
-        System.out.println(token);
         if (authToken == null) {
             throw new TokenNotFoundException("Token " + token + " not found");
         }
         if (authToken.getExpiry().before(new Date())) {
             throw new TokenNotFoundException("Token expired");
         }
-        User user = userRepository.findByUsername(authToken.getUsername());
+        User user = userRepository.findByEmail(authToken.getEmail());
         if (user == null) {
             throw new TokenNotFoundException("User with token " + token + " not found");
         }
@@ -38,7 +37,7 @@ public class MakordidUserDetailsService implements UserDetailsService {
 
     @Override
     public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByEmail(username);
         if(user == null) {
             throw new UsernameNotFoundException("User not found");
         }
