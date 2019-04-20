@@ -29,8 +29,8 @@ public class SwaggerConfig {
     @Bean
     public ApiInfo apiInfo() {
         return new ApiInfo(
-                "Syda API",
-                "Synchronized Data Solutions API",
+                "mAkordid API",
+                "Projekt mAkordid API",
                 "0.0.1",
                 null,
                 ApiInfo.DEFAULT_CONTACT,

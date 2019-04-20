@@ -1,4 +1,7 @@
+-- noinspection SqlNoDataSourceInspectionForFile
+
 CREATE TYPE active_status AS ENUM ('active', 'temporarily_inactive', 'inactive');
+CREATE TYPE song_status AS ENUM ('active', 'inactive');
 
 -- -----------------------------------------------------
 -- Table user
@@ -47,8 +50,8 @@ CREATE TABLE IF NOT EXISTS user_has_role (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS band (
   id SERIAL NOT NULL PRIMARY KEY,
-  name text NULL,
-  picture text NULL,
+  name text NOT NULL,
+  introduction text NULL,
   create_date TIMESTAMP without TIME ZONE DEFAULT now() NOT NULL,
   update_date TIMESTAMP without TIME ZONE DEFAULT now() NOT NULL
 );
@@ -59,9 +62,10 @@ CREATE TABLE IF NOT EXISTS band (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS song (
   id SERIAL NOT NULL PRIMARY KEY,
-  name text NULL,
+  name text NOT NULL,
   author text NULL,
-  content text NULL,
+  content text NOT NULL,
+  status song_status NOT NULL DEFAULT 'inactive',
   create_date TIMESTAMP without TIME ZONE DEFAULT now() NOT NULL,
   update_date TIMESTAMP without TIME ZONE DEFAULT now() NOT NULL,
   band_id integer NOT NULL,
@@ -74,6 +78,26 @@ CREATE TABLE IF NOT EXISTS song (
   CONSTRAINT fk_song_user1
     FOREIGN KEY (user_id)
     REFERENCES user_acc (id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+-- -----------------------------------------------------
+-- Table user likes song
+-- -----------------------------------------------------
+
+-- noinspection SqlNoDataSourceInspection
+
+CREATE TABLE IF NOT EXISTS user_likes_song (
+  user_id integer NOT NULL,
+  song_id integer NOT NULL,
+  CONSTRAINT fk_user_likes_song_user1
+    FOREIGN KEY (user_id)
+    REFERENCES user_acc (id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_user_likes_song_song1
+    FOREIGN KEY (song_id)
+    REFERENCES song (id)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 

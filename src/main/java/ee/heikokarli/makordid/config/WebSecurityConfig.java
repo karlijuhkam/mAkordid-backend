@@ -7,6 +7,7 @@ import ee.heikokarli.makordid.security.auth.TokenAuthorizationHandler;
 import ee.heikokarli.makordid.security.auth.TokenAuthorizationProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -27,7 +28,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
@@ -38,7 +39,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
-        http.authorizeRequests().antMatchers("/", "/register", "/api/**").permitAll()
+        http.authorizeRequests().antMatchers("/", "/api/**").permitAll()
                 .anyRequest().authenticated();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
@@ -47,14 +48,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public FilterChainProxy springSecurityFilterChain() throws Exception {
         SecurityFilterChain restChain = new DefaultSecurityFilterChain(
                 new NegatedRequestMatcher(new OrRequestMatcher(
-                        new AntPathRequestMatcher("/login"),
-                        new AntPathRequestMatcher("/register"),
-                        new AntPathRequestMatcher("/forgotpassword"),
                         new AntPathRequestMatcher("/api-docs"),
                         new AntPathRequestMatcher("/v2/api-docs"),
                         new AntPathRequestMatcher("/swagger-ui.html"),
                         new AntPathRequestMatcher("/webjars/**"),
-                        new AntPathRequestMatcher("/swagger-resources/**")
+                        new AntPathRequestMatcher("/swagger-resources/**"),
+                        new AntPathRequestMatcher("/actuator/**"),
+                        new AntPathRequestMatcher("/login"),
+                        new AntPathRequestMatcher("/register"),
+                        new AntPathRequestMatcher("/forgotpassword"),
+                        new AntPathRequestMatcher("/allbands/**"),
+                        new AntPathRequestMatcher("/bandlist/**"),
+                        new AntPathRequestMatcher("/bandsongs/**"),
+                        new AntPathRequestMatcher("/activesongs/**")
                 )),
                 new CORSFilter(),
                 new WebAsyncManagerIntegrationFilter(),

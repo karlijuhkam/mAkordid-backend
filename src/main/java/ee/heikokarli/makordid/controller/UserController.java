@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @RestController
-@Api(tags = {"User"})
+@Api(tags = {"Users"})
 public class UserController extends AbstractApiController {
 
     private AuthenticationService authenticationService;
@@ -83,7 +83,7 @@ public class UserController extends AbstractApiController {
     @PostMapping("/forgotpassword")
     @ApiOperation(
             value = "User password recovery",
-            tags = "User"
+            tags = "Users"
     )
     @ApiResponses(value = {
             @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "User does not exist", response = ErrorResponse.class)
@@ -102,7 +102,7 @@ public class UserController extends AbstractApiController {
     @PostMapping("/register")
     @ApiOperation(
             value = "User registration",
-            tags = "User"
+            tags = "Users"
     )
     @ApiResponses(value = {
             @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "User does not exist", response = ErrorResponse.class)

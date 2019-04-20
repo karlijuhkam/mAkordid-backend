@@ -1,6 +1,7 @@
 package ee.heikokarli.makordid.data.entity.user;
 
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
+import ee.heikokarli.makordid.data.entity.song.Song;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
@@ -59,6 +60,13 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     @Type(type = "pgsql_enum")
     private UserStatus status;
+
+    @ManyToMany(fetch = FetchType.EAGER, targetEntity = Song.class)
+    @JoinTable(name = "user_likes_song",
+            joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = { @JoinColumn(name = "song_id", referencedColumnName = "id")}
+    )
+    private Set<Song> likedSongs = new HashSet<>();
 
     @Column(name = "create_date", nullable = false, updatable = false)
     private Date createTime = new Date();

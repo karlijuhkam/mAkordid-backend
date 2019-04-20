@@ -1,0 +1,12 @@
+INSERT INTO band (name) VALUES ('Smilers'),
+                               ('Terminaator'),
+                               ('Ruja'),
+                               ('Untsakad'),
+                               ('G.G.G.'),
+                               ('Jaan Tätte'),
+                               ('Justament'),
+                               ('Jäääär'),
+                               ('Vennaskond'),
+                               ('VLÜ'),
+                               ('Ivo Linna'),
+                               ('Singer vinger');

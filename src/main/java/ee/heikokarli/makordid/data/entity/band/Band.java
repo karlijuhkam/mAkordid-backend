@@ -24,8 +24,8 @@ public class Band {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "picture", nullable = false)
-    private String picture;
+    @Column(name = "introduction")
+    private String introduction;
 
     @OneToMany(mappedBy = "band")
     private List<Song> songs = new ArrayList<>();

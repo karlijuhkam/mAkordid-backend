@@ -5,6 +5,7 @@ import ee.heikokarli.makordid.data.entity.band.Band;
 import ee.heikokarli.makordid.data.entity.user.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -37,6 +38,11 @@ public class Song {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "status", nullable = false, columnDefinition = "song_status")
+    @Enumerated(EnumType.STRING)
+    @Type(type = "pgsql_enum")
+    private SongStatus status;
+
     @Column(name = "create_date", nullable = false, updatable = false)
     @JsonIgnore
     private Date createTime = new Date();
@@ -49,6 +55,10 @@ public class Song {
     @PrePersist
     public void onCreateOnUpdate() {
         updateTime = new Date();
+    }
+
+    public enum SongStatus {
+        active, inactive
     }
 
 }
