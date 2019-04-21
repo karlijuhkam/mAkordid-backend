@@ -63,20 +63,12 @@ public class BandController extends AbstractApiController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "name") String sort,
-            @RequestParam(defaultValue = "asc") String sortDir
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDir
     ) {
 
         BandListRequest request = new BandListRequest(search);
 
-        Sort.Direction direction;
-
-        if (sortDir.equals("asc")) {
-            direction = Sort.Direction.ASC;
-        } else {
-            direction = Sort.Direction.DESC;
-        }
-
-        return bandService.getBandsList(request, of(page, 10, direction, sort))
+        return bandService.getBandsList(request, of(page, 10, sortDir, sort))
                 .map(BandResponse::new);
     }
 }
