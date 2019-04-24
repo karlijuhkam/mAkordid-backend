@@ -5,6 +5,7 @@ import ee.heikokarli.makordid.data.entity.band.Band;
 import ee.heikokarli.makordid.data.entity.user.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -44,11 +45,9 @@ public class Song {
     private SongStatus status;
 
     @Column(name = "create_date", nullable = false, updatable = false)
-    @JsonIgnore
     private Date createTime = new Date();
 
     @Column(name = "update_date", nullable = false)
-    @JsonIgnore
     private Date updateTime = new Date();
 
     @PreUpdate

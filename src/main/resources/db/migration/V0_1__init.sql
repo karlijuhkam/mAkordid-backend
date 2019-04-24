@@ -85,9 +85,8 @@ CREATE TABLE IF NOT EXISTS song (
 -- Table user likes song
 -- -----------------------------------------------------
 
--- noinspection SqlNoDataSourceInspection
-
 CREATE TABLE IF NOT EXISTS user_likes_song (
+  id SERIAL NOT NULL PRIMARY KEY,
   user_id integer NOT NULL,
   song_id integer NOT NULL,
   CONSTRAINT fk_user_likes_song_user1
