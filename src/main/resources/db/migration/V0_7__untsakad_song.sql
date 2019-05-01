@@ -39,5 +39,5 @@ HALL PAADIMEES VEEL IKKAGI NEID SILMI IGATSEB.
 
 Ref:
 AH, SILMAD? ',
-13, 1, 'active'
+4, 1, 'active'
 );
