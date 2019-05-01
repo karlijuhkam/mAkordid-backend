@@ -25,11 +25,14 @@ public class Song {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "author", nullable = false)
-    private String author;
+    @Column(name = "suggested_band", nullable = false)
+    private String suggestedBand;
 
     @Column(name = "content", nullable = false)
     private String content;
+
+    @Formula("(SELECT COUNT(*) FROM user_likes_song us WHERE us.song_id = id)")
+    private Long likeCount;
 
     @ManyToOne
     @JoinColumn(name = "band_id", nullable = false)

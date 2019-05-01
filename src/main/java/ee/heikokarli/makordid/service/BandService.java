@@ -1,6 +1,7 @@
 package ee.heikokarli.makordid.service;
 
 import ee.heikokarli.makordid.data.dto.request.band.BandListRequest;
+import ee.heikokarli.makordid.data.dto.request.band.BandRequest;
 import ee.heikokarli.makordid.data.entity.band.Band;
 import ee.heikokarli.makordid.data.repository.band.BandRepository;
 import ee.heikokarli.makordid.exception.band.BandNotFoundException;
@@ -30,14 +31,35 @@ public class BandService {
     }
 
     public List<Band> getAllBands() {
-        return bandRepository.findAll();
+        return bandRepository.findAllByOrderByNameAsc();
     }
 
-    public Page<Band> getBandsList(BandListRequest request, Pageable pageable) {
+    public Page<Band> getBandSearch(String searchTerm, Pageable pageable) {
         Specification<Band> spec = where(null);
 
-        if (request.getSearch() != null) spec = spec.and(search(request.getSearch()));
+        if (searchTerm != null) spec = spec.and(search(searchTerm));
 
         return bandRepository.findAll(spec, pageable);
+    }
+
+    public Band modifyBand(Long bandId, BandRequest request) {
+        Band band = this.getBandById(bandId);
+        return this.setBandData(request, band);
+    }
+
+    public Band addBand(BandRequest request){
+        return this.setBandData(request, new Band());
+    }
+
+    public Band setBandData(BandRequest request, Band band) {
+        if (request.getName() != null) {
+            band.setName(request.getName());
+        }
+
+        if (request.getIntroduction() != null) {
+            band.setIntroduction(request.getIntroduction());
+        }
+
+        return bandRepository.save(band);
     }
 }

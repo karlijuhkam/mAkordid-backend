@@ -19,6 +19,8 @@ public class UserDto implements Serializable {
         this.age = user.getAge();
         this.roles = user.getRoles();
         this.phone = user.getPhone();
+        this.likedSongsCount = user.getLikedSongsCount();
+        this.addedSongsCount = user.getAddedSongsCount();
         this.status = user.getStatus();
     }
     private Long id;
@@ -27,5 +29,7 @@ public class UserDto implements Serializable {
     private int age;
     private Set<Role> roles;
     private String phone;
+    private Long likedSongsCount;
+    private Long addedSongsCount;
     private User.UserStatus status;
 }

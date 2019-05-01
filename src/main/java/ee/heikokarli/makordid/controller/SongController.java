@@ -1,8 +1,12 @@
 package ee.heikokarli.makordid.controller;
 
+import ee.heikokarli.makordid.data.dto.request.band.BandListRequest;
+import ee.heikokarli.makordid.data.dto.request.song.SongListRequest;
+import ee.heikokarli.makordid.data.dto.request.song.SongRequest;
 import ee.heikokarli.makordid.data.dto.response.GenericMessageResponse;
 import ee.heikokarli.makordid.data.dto.response.error.ErrorResponse;
 import ee.heikokarli.makordid.data.dto.response.song.CheckLikeResponse;
+import ee.heikokarli.makordid.data.dto.response.song.SongResponse;
 import ee.heikokarli.makordid.data.dto.song.SongDto;
 import ee.heikokarli.makordid.data.entity.song.Song;
 import ee.heikokarli.makordid.data.entity.song.SongLike;
@@ -16,16 +20,19 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.domain.PageRequest.of;
 
 @RestController
 @Api(tags = {"Songs"})
@@ -65,7 +72,7 @@ public class SongController extends AbstractApiController {
             @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "Song not found.", response = ErrorResponse.class)
     })
     @RequestMapping(path = "/activesongs/{id}", method = RequestMethod.GET)
-    public SongDto getSongById(@PathVariable Long id){
+    public SongDto getActiveSongById(@PathVariable Long id){
         Song song = songService.getSongById(id);
         if (song.getStatus() == Song.SongStatus.inactive){
             throw new SongNotActiveException();
@@ -75,12 +82,104 @@ public class SongController extends AbstractApiController {
     }
 
     @ApiOperation(
+            value = "Search for songs",
+            tags = "Songs"
+    )
+    @RequestMapping(path = "/searchsongs", method = RequestMethod.GET)
+    public Page<SongResponse> getSongSearch(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(required = false) String search
+    ) {
+        return songService.getSongSearch(search, of(page, 10, Sort.Direction.ASC, "name"))
+                .map(SongResponse::new);
+    }
+
+    @ApiOperation(
+            value = "Get all songs paginated/filtered/sorted",
+            tags = "Songs"
+    )
+    @PreAuthorize("hasAnyAuthority('admin', 'moderator')")
+    @RequestMapping(path = "/songs", method = RequestMethod.GET)
+    public Page<SongResponse> getSongList(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String user,
+            @RequestParam(required = false) String band,
+            @RequestParam(required = false) Song.SongStatus status,
+            @RequestParam(defaultValue = "createTime") String sort,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDir
+    ) {
+
+        SongListRequest request = new SongListRequest(name, user, band, status);
+
+        return songService.getAllSongs(request, of(page, size, sortDir, sort))
+                .map(SongResponse::new);
+    }
+
+    @ApiOperation(
+            value = "Get any song by Id",
+            tags = "Songs"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "Song not found.", response = ErrorResponse.class),
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
+    })
+    @PreAuthorize("hasAnyAuthority('admin', 'moderator')")
+    @RequestMapping(path = "/songs/{id}", method = RequestMethod.GET)
+    public SongDto getSongById(@PathVariable Long id){
+        Song song = songService.getSongById(id);
+        return new SongDto(song);
+    }
+
+    @ApiOperation(
+            value = "Add a new song",
+            tags = "Songs"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
+    })
+    @RequestMapping(path = "/songs", method = RequestMethod.POST)
+    public ResponseEntity<SongDto> addSong(@Valid @RequestBody SongRequest request) {
+        return new ResponseEntity<>(new SongDto(songService.addSong(request)), HttpStatus.OK);
+    }
+
+    @ApiOperation(
+            value = "Delete a song",
+            tags = "Songs"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
+    })
+    @PreAuthorize("hasAnyAuthority('admin', 'moderator')")
+    @RequestMapping(path = "/songs/{id}", method = RequestMethod.DELETE)
+    public void deleteSong(@PathVariable Long id) {
+        songService.deleteSong(id);
+    }
+
+    @ApiOperation(
+            value = "Patch song",
+            tags = "Songs"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_FORBIDDEN, message = "Access denied", response = ErrorResponse.class),
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
+    })
+    @PreAuthorize("hasAnyAuthority('admin', 'moderator')")
+    @RequestMapping(path = "/songs/{id}", method = RequestMethod.PATCH)
+    public ResponseEntity<SongDto> patchSong(@PathVariable Long id, @Valid @RequestBody SongRequest request){
+        Song song = songService.modifySong(id, request);
+        return new ResponseEntity<>(new SongDto(song), HttpStatus.OK);
+    }
+
+    @ApiOperation(
             value = "Like/unlike song",
             tags = "Songs"
     )
     @ApiResponses(value = {
             @ApiResponse(code = HttpServletResponse.SC_FORBIDDEN, message = "Song not active.", response = ErrorResponse.class),
-            @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "Song not found.", response = ErrorResponse.class)
+            @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "Song not found.", response = ErrorResponse.class),
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
     })
     @RequestMapping(path = "/likesong/{songId}", method = RequestMethod.GET)
     public ResponseEntity<GenericMessageResponse> likeSong(@PathVariable Long songId){
@@ -99,23 +198,43 @@ public class SongController extends AbstractApiController {
     }
 
     @ApiOperation(
-            value = "Get like count and like status",
+            value = "Get like status",
             tags = "Songs"
     )
     @ApiResponses(value = {
             @ApiResponse(code = HttpServletResponse.SC_FORBIDDEN, message = "Song not active.", response = ErrorResponse.class),
-            @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "Song not found.", response = ErrorResponse.class)
+            @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "Song not found.", response = ErrorResponse.class),
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
     })
     @RequestMapping(path = "/likecheck/{songId}", method = RequestMethod.GET)
     public ResponseEntity<CheckLikeResponse> likeCheck(@PathVariable Long songId){
         Song song = songService.getSongById(songId);
         User user = userService.getCurrentUser();
         SongLike songLike = songLikeService.getLikeBySongAndUser(song, user);
-        Long likeCount = songLikeService.getSongLikeCount(song);
         if (songLike != null) {
-            return new ResponseEntity<>(new CheckLikeResponse(true, likeCount), HttpStatus.OK);
+            return new ResponseEntity<>(new CheckLikeResponse(true), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new CheckLikeResponse(false, likeCount), HttpStatus.OK);
+        return new ResponseEntity<>(new CheckLikeResponse(false), HttpStatus.OK);
+    }
+
+    @ApiOperation(
+            value = "Get top 5 songs by create time",
+            tags = "Songs"
+    )
+    @RequestMapping(path = "/recentsongs", method = RequestMethod.GET)
+    public Page<SongResponse> getTopTenByCreateTime() {
+        return songService.getSpecifiedSongs(of(0, 5, Sort.Direction.DESC, "createTime"))
+                .map(SongResponse::new);
+    }
+
+    @ApiOperation(
+            value = "Get top 5 songs by like count",
+            tags = "Songs"
+    )
+    @RequestMapping(path = "/popularsongs", method = RequestMethod.GET)
+    public Page<SongResponse> getTopTenByLikeCount() {
+        return songService.getSpecifiedSongs(of(0, 5, Sort.Direction.DESC, "likeCount"))
+                .map(SongResponse::new);
     }
 
 }

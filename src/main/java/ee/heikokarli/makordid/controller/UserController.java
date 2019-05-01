@@ -4,6 +4,7 @@ import ee.heikokarli.makordid.data.dto.request.auth.ForgotPasswordRequest;
 import ee.heikokarli.makordid.data.dto.request.auth.LoginRequest;
 import ee.heikokarli.makordid.data.dto.request.auth.RegisterRequest;
 import ee.heikokarli.makordid.data.dto.request.user.PatchUserRequest;
+import ee.heikokarli.makordid.data.dto.request.user.UserListRequest;
 import ee.heikokarli.makordid.data.dto.response.GenericMessageResponse;
 import ee.heikokarli.makordid.data.dto.response.auth.LoginResponse;
 import ee.heikokarli.makordid.data.dto.response.error.ErrorResponse;
@@ -11,6 +12,7 @@ import ee.heikokarli.makordid.data.dto.user.UserDto;
 import ee.heikokarli.makordid.data.entity.auth.AuthToken;
 import ee.heikokarli.makordid.data.entity.user.User;
 import ee.heikokarli.makordid.exception.BadRequestException;
+import ee.heikokarli.makordid.exception.user.UserInactiveException;
 import ee.heikokarli.makordid.exception.user.UserNotFoundException;
 import ee.heikokarli.makordid.service.AuthenticationService;
 import ee.heikokarli.makordid.service.UserService;
@@ -19,6 +21,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +32,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+
+import static org.springframework.data.domain.PageRequest.of;
 
 @RestController
 @Api(tags = {"Users"})
@@ -46,6 +52,71 @@ public class UserController extends AbstractApiController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @ApiOperation(
+            value = "Get user by Id",
+            tags = "Users"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "´User not found.", response = ErrorResponse.class),
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
+    })
+    @PreAuthorize("hasAnyAuthority('admin', 'moderator')")
+    @RequestMapping(path = "/users/{id}", method = RequestMethod.GET)
+    public UserDto getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        return new UserDto(user);
+    }
+
+    @ApiOperation(
+            value = "Modify user by Id",
+            tags = "Users"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
+    })
+    @PreAuthorize("hasAnyAuthority('admin', 'moderator')")
+    @RequestMapping(path = "/users/{id}", method = RequestMethod.PATCH)
+    public ResponseEntity<UserDto> patchUser(@PathVariable Long id, @Valid @RequestBody PatchUserRequest request){
+        User user = userService.modifyUser(userService.getUserById(id),request);
+        return new ResponseEntity<>(new UserDto(user), HttpStatus.OK);
+    }
+
+    @ApiOperation(
+            value = "Get current user profile",
+            tags = "Users"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
+    })
+    @RequestMapping(path = "/profile", method = RequestMethod.GET)
+    public ResponseEntity<UserDto> getCurrentUser(){
+        User user = userService.getCurrentUser();
+        return new ResponseEntity<>(new UserDto(user), HttpStatus.OK);
+    }
+
+    @ApiOperation(
+            value = "Get all users paginated/filtered/sorted",
+            tags = "Users"
+    )
+    @PreAuthorize("hasAuthority('admin')")
+    @RequestMapping(path = "/users", method = RequestMethod.GET)
+    public Page<UserDto> getSongList(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String roles,
+            @RequestParam(required = false) User.UserStatus status,
+            @RequestParam(defaultValue = "createTime") String sort,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDir
+    ) {
+
+        UserListRequest request = new UserListRequest(username, email, roles, status);
+
+        return userService.getAllUsers(request, of(page, size, sortDir, sort))
+                .map(UserDto::new);
+    }
+
     @PostMapping("/login")
     @ApiOperation(
             value = "User login",
@@ -59,6 +130,10 @@ public class UserController extends AbstractApiController {
         String password = loginRequest.getPassword();
         User user = userService.getUserByEmail(email);
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+
+            if (user.getStatus() == User.UserStatus.inactive) {
+                throw new UserInactiveException();
+            }
 
             AuthToken token = authenticationService.saveToken(user.getEmail());
 

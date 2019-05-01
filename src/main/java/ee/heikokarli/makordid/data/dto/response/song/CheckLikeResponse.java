@@ -9,5 +9,4 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CheckLikeResponse {
     boolean isLiked;
-    Long likeCount;
 }

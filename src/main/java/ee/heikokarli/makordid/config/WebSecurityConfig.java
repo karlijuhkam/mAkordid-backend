@@ -58,9 +58,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         new AntPathRequestMatcher("/register"),
                         new AntPathRequestMatcher("/forgotpassword"),
                         new AntPathRequestMatcher("/allbands/**"),
-                        new AntPathRequestMatcher("/bandlist/**"),
+                        new AntPathRequestMatcher("/searchbands/**"),
+                        new AntPathRequestMatcher("/searchsongs/**"),
                         new AntPathRequestMatcher("/bandsongs/**"),
-                        new AntPathRequestMatcher("/activesongs/**")
+                        new AntPathRequestMatcher("/activesongs/**"),
+                        new AntPathRequestMatcher("/recentsongs"),
+                        new AntPathRequestMatcher("/popularsongs")
                 )),
                 new CORSFilter(),
                 new WebAsyncManagerIntegrationFilter(),

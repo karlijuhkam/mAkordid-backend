@@ -4,6 +4,7 @@ import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import ee.heikokarli.makordid.data.entity.song.Song;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -12,6 +13,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -48,6 +50,12 @@ public class User implements Serializable {
 
     @Column(name = "email", nullable = false)
     private String email;
+
+    @Formula("(SELECT COUNT(*) FROM user_likes_song us WHERE us.user_id = id)")
+    private Long likedSongsCount;
+
+    @Formula("(SELECT COUNT(*) FROM song s WHERE s.user_id = id AND s.status = 'active')")
+    private Long addedSongsCount;
 
     @ManyToMany(fetch = FetchType.EAGER, targetEntity = Role.class)
     @JoinTable(name = "user_has_role",

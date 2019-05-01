@@ -1,0 +1,43 @@
+INSERT INTO song (name, content, band_id, user_id, status) VALUES
+('Viljandi paadimees',
+'1.
+Am       F           G    Am          F    G
+KÄE ULATAB NOOR PAADIMEES NII LAHKELT NEIULE,
+Am        F           G       Am    F   G
+KES ARALT SEISAB TEMA EES, ET SÕITA ÜLE VEE.
+
+
+Ref:
+Am  F    G         Am F G
+AH, SILMAD EI IIAL UNUNE,
+     Am     F       G           Am      F    G
+NEED ILUSAD SINISED SILMAD MULT VÕITSID SÜDAME.
+
+
+2.
+KUI NEIU PAADIS, ALGAB SÕIT, TÄIS ÕNNE KÕIK MAAILM.
+JA NEIU PALGEL PUNAB KOIT NING RÕÕMUST SÄRAB SILM.
+
+
+Ref:
+AH, SILMAD?
+
+
+3.
+TA KAELA NEIU LANGEB SIIS JA KINGIB SUUDLUSE,
+SILM SÄRAB RÕÕMUPISARAIS, ARM TUNGIB SÜDAME.
+
+
+Ref:
+AH, SILMAD?
+
+
+4.
+HULK AASTAID LÄIND JA VILJANDI JÄRV IKKA KOHISEB.
+HALL PAADIMEES VEEL IKKAGI NEID SILMI IGATSEB.
+
+
+Ref:
+AH, SILMAD? ',
+13, 1, 'active'
+);

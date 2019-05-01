@@ -63,12 +63,12 @@ CREATE TABLE IF NOT EXISTS band (
 CREATE TABLE IF NOT EXISTS song (
   id SERIAL NOT NULL PRIMARY KEY,
   name text NOT NULL,
-  author text NULL,
+  suggested_band text NULL,
   content text NOT NULL,
   status song_status NOT NULL DEFAULT 'inactive',
   create_date TIMESTAMP without TIME ZONE DEFAULT now() NOT NULL,
   update_date TIMESTAMP without TIME ZONE DEFAULT now() NOT NULL,
-  band_id integer NOT NULL,
+  band_id integer NULL,
   user_id integer NOT NULL,
   CONSTRAINT fk_song_band
     FOREIGN KEY (band_id)

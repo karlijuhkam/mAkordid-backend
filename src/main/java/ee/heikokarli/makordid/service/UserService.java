@@ -2,6 +2,7 @@ package ee.heikokarli.makordid.service;
 
 import ee.heikokarli.makordid.data.dto.request.auth.RegisterRequest;
 import ee.heikokarli.makordid.data.dto.request.user.PatchUserRequest;
+import ee.heikokarli.makordid.data.dto.request.user.UserListRequest;
 import ee.heikokarli.makordid.data.entity.user.Role;
 import ee.heikokarli.makordid.data.entity.user.User;
 import ee.heikokarli.makordid.data.repository.user.RoleRepository;
@@ -12,6 +13,9 @@ import ee.heikokarli.makordid.exception.user.UserAlreadyExistsException;
 import ee.heikokarli.makordid.exception.user.UserNotFoundException;
 import ee.heikokarli.makordid.security.UserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,6 +26,9 @@ import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static ee.heikokarli.makordid.data.specifications.UserSpecifications.*;
+import static org.springframework.data.jpa.domain.Specification.where;
 
 @Service
 public class UserService {
@@ -45,12 +52,27 @@ public class UserService {
         this.random = new SecureRandom();
     }
 
+    public Page<User> getAllUsers(UserListRequest request, Pageable pageable) {
+        Specification<User> spec = where(null);
+
+        if (request.getUsername() != null) spec = spec.and(username(request.getUsername()));
+        if (request.getEmail() != null) spec = spec.and(email(request.getEmail()));
+        if (request.getStatus() != null) spec = spec.and(status(request.getStatus()));
+        if (request.getRoles() != null) spec = spec.and(hasRoles(request.getRoles()));
+
+        return userRepository.findAll(spec, pageable);
+    }
+
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
     public User getCurrentUser() {
@@ -93,6 +115,14 @@ public class UserService {
 
         if (request.getAge() != null) {
             user.setAge(request.getAge());
+        }
+
+        if (request.getRoles() != null) {
+            user.setRoles(request.getRoles());
+        }
+
+        if (request.getStatus() != null) {
+            user.setStatus(request.getStatus());
         }
 
         return userRepository.save(user);
