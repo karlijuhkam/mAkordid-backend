@@ -1,7 +1,3 @@
-UPDATE song
-SET band_id = 4
-WHERE band_id = 13;
-
 INSERT INTO song (name, content, band_id, user_id, status) VALUES
 ('Krokodill Gena lauluke',
 'Am                            E
