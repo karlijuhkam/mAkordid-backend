@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -27,7 +28,7 @@ public class UserDto implements Serializable {
     private String email;
     private String username;
     private int age;
-    private Set<Role> roles;
+    private List<Role> roles;
     private String phone;
     private Long likedSongsCount;
     private Long addedSongsCount;

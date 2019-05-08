@@ -200,4 +200,14 @@ public class UserController extends AbstractApiController {
         return new ResponseEntity<>(new UserDto(user), HttpStatus.OK);
     }
 
+    @ApiOperation(
+            value = "Get top 5 users by addedSongsCount",
+            tags = "Users"
+    )
+    @RequestMapping(path = "/topusers", method = RequestMethod.GET)
+    public Page<UserDto> getTopFiveByAddedSongsCount() {
+        return userService.getSpecifiedUsers(of(0, 5, Sort.Direction.DESC, "addedSongsCount"))
+                .map(UserDto::new);
+    }
+
 }

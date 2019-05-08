@@ -28,6 +28,9 @@ public class Song {
     @Column(name = "suggested_band", nullable = false)
     private String suggestedBand;
 
+    @Column(name = "youtube_url", nullable = false)
+    private String youtubeUrl;
+
     @Column(name = "content", nullable = false)
     private String content;
 

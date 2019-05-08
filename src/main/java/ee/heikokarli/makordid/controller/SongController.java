@@ -140,8 +140,8 @@ public class SongController extends AbstractApiController {
             @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
     })
     @RequestMapping(path = "/songs", method = RequestMethod.POST)
-    public ResponseEntity<SongDto> addSong(@Valid @RequestBody SongRequest request) {
-        return new ResponseEntity<>(new SongDto(songService.addSong(request)), HttpStatus.OK);
+    public ResponseEntity<SongResponse> addSong(@Valid @RequestBody SongRequest request) {
+        return new ResponseEntity<>(new SongResponse(songService.addSong(request)), HttpStatus.OK);
     }
 
     @ApiOperation(
@@ -222,9 +222,9 @@ public class SongController extends AbstractApiController {
             tags = "Songs"
     )
     @RequestMapping(path = "/recentsongs", method = RequestMethod.GET)
-    public Page<SongResponse> getTopTenByCreateTime() {
+    public Page<SongDto> getTopTenByCreateTime() {
         return songService.getSpecifiedSongs(of(0, 5, Sort.Direction.DESC, "createTime"))
-                .map(SongResponse::new);
+                .map(SongDto::new);
     }
 
     @ApiOperation(
@@ -232,9 +232,9 @@ public class SongController extends AbstractApiController {
             tags = "Songs"
     )
     @RequestMapping(path = "/popularsongs", method = RequestMethod.GET)
-    public Page<SongResponse> getTopTenByLikeCount() {
+    public Page<SongDto> getTopTenByLikeCount() {
         return songService.getSpecifiedSongs(of(0, 5, Sort.Direction.DESC, "likeCount"))
-                .map(SongResponse::new);
+                .map(SongDto::new);
     }
 
 }

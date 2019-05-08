@@ -13,5 +13,6 @@ public class SongRequest implements Serializable {
     String content;
     Band band;
     String suggestedBand;
+    String youtubeUrl;
     Long userId;
 }

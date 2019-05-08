@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -86,8 +87,36 @@ public class UserService {
         return (UserDetails) authentication.getPrincipal();
     }
 
+    public Page<User> getSpecifiedUsers(Pageable pageable) {
+        Specification<User> spec = where(null);
+        spec = spec.and(status(User.UserStatus.active));
+        return userRepository.findAll(spec, pageable);
+    }
+
     public List<Role> getAllRoles(){
         return roleRepository.findAll();
+    }
+
+    public boolean isCurrentUserAnAdmin() {
+        boolean result = false;
+        for (Role role:getCurrentUser().getRoles()) {
+            if (role.getName().equals("admin")) {
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
+
+    public boolean isCurrentUserAModerator() {
+        boolean result = false;
+        for (Role role:getCurrentUser().getRoles()) {
+            if (role.getName().equals("moderator")) {
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 
     public User modifyUser(User user, PatchUserRequest request) {
@@ -160,17 +189,12 @@ public class UserService {
             user.setEmail(request.getEmail());
         }
 
-        Set<Role> roles = new HashSet<>();
+        List<Role> roles = new ArrayList<>();
         roles.add(roleRepository.findByName("user"));
+        user.setUsername(request.getUsername());
         user.setRoles(roles);
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
         user.setStatus(User.UserStatus.active);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        emailService.sendMail("mAkordid", user.getEmail(),
-                "Tere tulemast portaali mAkordid!",
-                "<br><div style=\"text-align: center; font-size: 16px; font-weight: 600\">Tere tulemast, " + request.getFirstName() + " " + request.getLastName() + "!" +
-                        "<br>Olete registreerinud end mAkordid kasutajaks.</div>");
         return userRepository.save(user);
     }
 

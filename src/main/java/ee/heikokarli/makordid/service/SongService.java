@@ -74,9 +74,18 @@ public class SongService {
     }
 
     public Song addSong(SongRequest request){
+        User currentUser = userService.getCurrentUser();
         Song song = new Song();
         song.setUser(userService.getCurrentUser());
-        song.setStatus(Song.SongStatus.inactive);
+        if (request.getSuggestedBand().isEmpty()) {
+            if (currentUser.getAddedSongsCount() > 4 || userService.isCurrentUserAnAdmin() || userService.isCurrentUserAModerator()) {
+                song.setStatus(Song.SongStatus.active);
+            } else {
+                song.setStatus(Song.SongStatus.inactive);
+            }
+        } else {
+            song.setStatus(Song.SongStatus.inactive);
+        }
         return this.setSongData(request, song);
     }
 
@@ -94,16 +103,21 @@ public class SongService {
             song.setContent(request.getContent());
         }
 
+        if (request.getYoutubeUrl() != null) {
+            song.setYoutubeUrl(request.getYoutubeUrl());
+        }
+
         if (request.getStatus() != null) {
             song.setStatus(request.getStatus());
         }
 
-        if (request.getBand() != null) {
-            song.setBand(request.getBand());
-        }
-
         if (request.getSuggestedBand() != null) {
             song.setSuggestedBand(request.getSuggestedBand());
+        }
+
+        if (request.getBand() != null) {
+            song.setBand(request.getBand());
+            song.setSuggestedBand(null);
         }
 
         return songRepository.save(song);

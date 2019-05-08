@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -18,6 +19,6 @@ public class PatchUserRequest implements Serializable {
     @Size(min = 8, message = "Min length 8")
     String password;
     String oldPassword;
-    Set<Role> roles;
+    List<Role> roles;
     User.UserStatus status;
 }
