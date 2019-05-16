@@ -104,6 +104,8 @@ public class SongController extends AbstractApiController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) String name,
+            @RequestParam(required = false) String suggestedBand,
+            @RequestParam(required = false) String author,
             @RequestParam(required = false) String user,
             @RequestParam(required = false) String band,
             @RequestParam(required = false) Song.SongStatus status,
@@ -111,7 +113,7 @@ public class SongController extends AbstractApiController {
             @RequestParam(defaultValue = "ASC") Sort.Direction sortDir
     ) {
 
-        SongListRequest request = new SongListRequest(name, user, band, status);
+        SongListRequest request = new SongListRequest(name, suggestedBand, user, band, author,status);
 
         return songService.getAllSongs(request, of(page, size, sortDir, sort))
                 .map(SongResponse::new);

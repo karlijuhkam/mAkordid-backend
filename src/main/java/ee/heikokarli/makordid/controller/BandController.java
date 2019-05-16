@@ -40,6 +40,23 @@ public class BandController extends AbstractApiController {
     }
 
     @ApiOperation(
+            value = "Get all bands paginated/filtered/sorted",
+            tags = "Bands"
+    )
+    @PreAuthorize("hasAnyAuthority('admin', 'moderator')")
+    @RequestMapping(path = "/bands", method = RequestMethod.GET)
+    public Page<BandDto> getBandList(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String name,
+            @RequestParam(defaultValue = "name") String sort,
+            @RequestParam(defaultValue = "ASC") Sort.Direction sortDir
+    ) {
+        return bandService.getBandSearch(name, of(page, size, sortDir, sort))
+                .map(BandDto::new);
+    }
+
+    @ApiOperation(
             value = "Get band by Id",
             tags = "Bands"
     )
@@ -87,6 +104,19 @@ public class BandController extends AbstractApiController {
     public ResponseEntity<BandDto> patchBand(@PathVariable Long id, @Valid @RequestBody BandRequest request){
         Band band = bandService.modifyBand(id, request);
         return new ResponseEntity<>(new BandDto(band), HttpStatus.OK);
+    }
+
+    @ApiOperation(
+            value = "Delete a band",
+            tags = "Bands"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = "UNAUTHORIZED")
+    })
+    @PreAuthorize("hasAnyAuthority('admin', 'moderator')")
+    @RequestMapping(path = "/bands/{id}", method = RequestMethod.DELETE)
+    public void deleteBand(@PathVariable Long id) {
+        bandService.deleteBand(id);
     }
 
     @ApiOperation(

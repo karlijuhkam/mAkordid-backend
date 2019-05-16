@@ -98,7 +98,7 @@ public class UserController extends AbstractApiController {
             value = "Get all users paginated/filtered/sorted",
             tags = "Users"
     )
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAnyAuthority('moderator','admin')")
     @RequestMapping(path = "/users", method = RequestMethod.GET)
     public Page<UserDto> getSongList(
             @RequestParam(defaultValue = "0") Integer page,
@@ -107,7 +107,7 @@ public class UserController extends AbstractApiController {
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String roles,
             @RequestParam(required = false) User.UserStatus status,
-            @RequestParam(defaultValue = "createTime") String sort,
+            @RequestParam(defaultValue = "username") String sort,
             @RequestParam(defaultValue = "ASC") Sort.Direction sortDir
     ) {
 

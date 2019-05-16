@@ -13,7 +13,9 @@ public class BandMinimizedDto implements Serializable {
     public BandMinimizedDto(Band band) {
         this.id = band.getId();
         this.name = band.getName();
+        this.songCount = band.getSongCount();
     }
     private Long id;
     private String name;
+    private Long songCount;
 }

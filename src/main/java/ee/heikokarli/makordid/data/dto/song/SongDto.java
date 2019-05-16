@@ -18,8 +18,14 @@ public class SongDto implements Serializable {
         this.name = song.getName();
         this.content = song.getContent();
         this.youtubeUrl = song.getYoutubeUrl();
+        this.author = song.getAuthor();
+        this.suggestedBand = song.getSuggestedBand();
         this.likeCount = song.getLikeCount();
-        this.band = new BandMinimizedDto(song.getBand());
+        if  (song.getBand() != null) {
+            this.band = new BandMinimizedDto(song.getBand());
+        } else {
+            this.band = null;
+        }
         this.user = new UserMinimizedDto(song.getUser());
         this.createTime = song.getCreateTime();
         this.updateTime = song.getUpdateTime();
@@ -28,7 +34,9 @@ public class SongDto implements Serializable {
     private Long id;
     private String name;
     private String content;
+    private String author;
     private String youtubeUrl;
+    private String suggestedBand;
     private Long likeCount;
     private BandMinimizedDto band;
     private UserMinimizedDto user;

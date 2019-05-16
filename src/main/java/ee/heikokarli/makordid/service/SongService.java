@@ -61,9 +61,11 @@ public class SongService {
         Specification<Song> spec = where(null);
 
         if (request.getName() != null) spec = spec.and(name(request.getName()));
+        if (request.getSuggestedBand() != null) spec = spec.and(suggestedBand(request.getSuggestedBand()));
         if (request.getBand() != null) spec = spec.and(band(request.getBand()));
         if (request.getStatus() != null) spec = spec.and(status(request.getStatus()));
         if (request.getUser() != null) spec = spec.and(user(request.getUser()));
+        if (request.getAuthor() != null) spec = spec.and(author(request.getAuthor()));
 
         return songRepository.findAll(spec, pageable);
     }
@@ -78,7 +80,9 @@ public class SongService {
         Song song = new Song();
         song.setUser(userService.getCurrentUser());
         if (request.getSuggestedBand().isEmpty()) {
-            if (currentUser.getAddedSongsCount() > 4 || userService.isCurrentUserAnAdmin() || userService.isCurrentUserAModerator()) {
+            if (currentUser.getAddedSongsCount() > 4 ||
+                    userService.isCurrentUserAnAdmin() ||
+                    userService.isCurrentUserAModerator()) {
                 song.setStatus(Song.SongStatus.active);
             } else {
                 song.setStatus(Song.SongStatus.inactive);
@@ -101,6 +105,10 @@ public class SongService {
 
         if (request.getContent() != null) {
             song.setContent(request.getContent());
+        }
+
+        if (request.getAuthor() != null) {
+            song.setAuthor(request.getAuthor());
         }
 
         if (request.getYoutubeUrl() != null) {

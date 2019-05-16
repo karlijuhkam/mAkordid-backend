@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 
 public class EntityNotActiveException extends ApiException {
     public EntityNotActiveException() {
-        super(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.toString(), "Entity not active");
+        super(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.toString(), "Entity not active");
     }
     public EntityNotActiveException(String message) {
-        super(HttpStatus.FORBIDDEN, HttpStatus.FORBIDDEN.toString(), message);
+        super(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.toString(), message);
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import ee.heikokarli.makordid.data.entity.song.Song;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -27,7 +28,11 @@ public class Band {
     @Column(name = "introduction")
     private String introduction;
 
-    @OneToMany(mappedBy = "band")
+    @Formula("(SELECT COUNT(*) FROM song WHERE song.band_id = id AND song.status = 'active')")
+    private Long songCount;
+
+    @OneToMany(mappedBy = "band", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Song> songs = new ArrayList<>();
 
     @Column(name = "create_date", nullable = false, updatable = false)

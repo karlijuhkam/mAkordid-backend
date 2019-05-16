@@ -4,6 +4,6 @@ import ee.heikokarli.makordid.exception.EntityNotActiveException;
 
 public class UserInactiveException extends EntityNotActiveException {
     public UserInactiveException() {
-        super("User not active.");
+        super("Kasutaja pole aktiivne.");
     }
 }

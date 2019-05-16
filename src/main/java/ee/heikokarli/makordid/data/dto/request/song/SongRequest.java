@@ -11,6 +11,7 @@ public class SongRequest implements Serializable {
     String name;
     Song.SongStatus status;
     String content;
+    String author;
     Band band;
     String suggestedBand;
     String youtubeUrl;

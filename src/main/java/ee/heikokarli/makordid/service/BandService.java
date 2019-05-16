@@ -1,9 +1,9 @@
 package ee.heikokarli.makordid.service;
 
-import ee.heikokarli.makordid.data.dto.request.band.BandListRequest;
 import ee.heikokarli.makordid.data.dto.request.band.BandRequest;
 import ee.heikokarli.makordid.data.entity.band.Band;
 import ee.heikokarli.makordid.data.repository.band.BandRepository;
+import ee.heikokarli.makordid.exception.band.BandAlreadyExistsException;
 import ee.heikokarli.makordid.exception.band.BandNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,6 +30,10 @@ public class BandService {
         return bandRepository.findById(id).orElseThrow(BandNotFoundException::new);
     }
 
+    public Band getBandByName(String name) {
+        return bandRepository.findByNameIgnoreCase(name);
+    }
+
     public List<Band> getAllBands() {
         return bandRepository.findAllByOrderByNameAsc();
     }
@@ -53,7 +57,12 @@ public class BandService {
 
     public Band setBandData(BandRequest request, Band band) {
         if (request.getName() != null) {
-            band.setName(request.getName());
+            Band bandCheck = getBandByName(request.getName());
+            if (bandCheck == null) {
+                band.setName(request.getName());
+            } else {
+                throw new BandAlreadyExistsException();
+            }
         }
 
         if (request.getIntroduction() != null) {
@@ -61,5 +70,10 @@ public class BandService {
         }
 
         return bandRepository.save(band);
+    }
+
+    public void deleteBand(Long bandId) {
+        Band band = this.getBandById(bandId);
+        bandRepository.delete(band);
     }
 }

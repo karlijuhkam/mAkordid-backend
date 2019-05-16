@@ -11,4 +11,5 @@ import java.util.List;
 public interface BandRepository extends JpaRepository<Band, Long>, JpaSpecificationExecutor<Band> {
 
     List<Band> findAllByOrderByNameAsc();
+    Band findByNameIgnoreCase(String name);
 }

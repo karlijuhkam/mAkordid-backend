@@ -6,7 +6,9 @@ import lombok.Data;
 @Data
 public class SongListRequest {
     private final String name;
+    private final String suggestedBand;
     private final String user;
     private final String band;
+    private final String author;
     private final Song.SongStatus status;
 }

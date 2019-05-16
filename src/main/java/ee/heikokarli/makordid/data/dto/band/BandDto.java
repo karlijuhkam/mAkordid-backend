@@ -14,8 +14,10 @@ public class BandDto implements Serializable {
         this.id = band.getId();
         this.name = band.getName();
         this.introduction = band.getIntroduction();
+        this.songCount = band.getSongCount();
     }
     private Long id;
     private String name;
     private String introduction;
+    private Long songCount;
 }

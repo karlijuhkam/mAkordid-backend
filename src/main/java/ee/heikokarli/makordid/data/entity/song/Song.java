@@ -9,7 +9,9 @@ import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -25,20 +27,27 @@ public class Song {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "suggested_band", nullable = false)
+    @Column(name = "suggested_band")
     private String suggestedBand;
 
-    @Column(name = "youtube_url", nullable = false)
+    @Column(name = "youtube_url")
     private String youtubeUrl;
 
     @Column(name = "content", nullable = false)
     private String content;
 
+    @Column(name = "author", nullable = false)
+    private String author;
+
     @Formula("(SELECT COUNT(*) FROM user_likes_song us WHERE us.song_id = id)")
     private Long likeCount;
 
+    @OneToMany(mappedBy = "song", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<SongLike> likes = new ArrayList<>();
+
     @ManyToOne
-    @JoinColumn(name = "band_id", nullable = false)
+    @JoinColumn(name = "band_id")
     private Band band;
 
     @ManyToOne

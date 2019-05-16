@@ -9,12 +9,20 @@ public class SongSpecifications extends AbstractSpecifications{
         return (root, query, criteriaBuilder ) -> lowerLike(criteriaBuilder, root.get("name"), name);
     }
 
+    public static Specification<Song> suggestedBand(String name) {
+        return (root, query, criteriaBuilder ) -> lowerLike(criteriaBuilder, root.get("suggestedBand"), name);
+    }
+
     public static Specification<Song> band(String band) {
         return (root, query, criteriaBuilder ) -> lowerLike(criteriaBuilder, root.get("band").get("name"), band);
     }
 
     public static Specification<Song> user(String user) {
-        return (root, query, criteriaBuilder ) -> lowerLike(criteriaBuilder, root.get("user").get("name"), user);
+        return (root, query, criteriaBuilder ) -> lowerLike(criteriaBuilder, root.get("user").get("username"), user);
+    }
+
+    public static Specification<Song> author(String author) {
+        return (root, query, criteriaBuilder ) -> lowerLike(criteriaBuilder, root.get("author"), author);
     }
 
     public static Specification<Song> status(Song.SongStatus status) {
