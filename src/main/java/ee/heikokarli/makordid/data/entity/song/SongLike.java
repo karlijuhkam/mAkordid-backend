@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Data
@@ -24,5 +25,11 @@ public class SongLike {
     @ManyToOne
     @JoinColumn(name = "song_id")
     private Song song;
+
+    @Column(name = "create_time", nullable = false, updatable = false)
+    private Date createTime = new Date();
+
+    @Column(name = "update_time", nullable = false)
+    private Date updateTime = new Date();
 
 }

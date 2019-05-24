@@ -8,9 +8,16 @@ import ee.heikokarli.makordid.data.repository.song.SongLikeRepository;
 import ee.heikokarli.makordid.data.repository.song.SongRepository;
 import ee.heikokarli.makordid.exception.song.SongNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static ee.heikokarli.makordid.data.specifications.SongLikeSpecifications.status;
+import static ee.heikokarli.makordid.data.specifications.SongLikeSpecifications.user;
+import static org.springframework.data.jpa.domain.Specification.where;
 
 @Service
 public class SongLikeService {
@@ -46,8 +53,11 @@ public class SongLikeService {
         songLikeRepository.delete(songLike);
     }
 
-    public Long getSongLikeCount(Song song) {
-        return songLikeRepository.countSongLikeBySong(song);
+    public Page<SongLike> getLikedSongs(Pageable pageable) {
+        Specification<SongLike> spec = where(null);
+        spec = spec.and(user(userService.getCurrentUser()));
+        spec = spec.and(status(Song.SongStatus.active));
+        return songLikeRepository.findAll(spec, pageable);
     }
 
 }

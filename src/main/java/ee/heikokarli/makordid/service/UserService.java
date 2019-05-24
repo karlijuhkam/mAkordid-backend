@@ -120,30 +120,18 @@ public class UserService {
     }
 
     public User modifyUser(User user, PatchUserRequest request) {
-        if (request.getPassword() != null) {
+        if (request.getNewPassword() != null) {
             if (request.getOldPassword() == null || !passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
                 throw new BadRequestException("Vale parool!");
             }
-            if (request.getPassword().length() < 8) {
+            if (request.getNewPassword().length() < 8) {
                 throw new PasswordTooShortException();
             }
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         }
 
-        if (request.getFirstName() != null) {
-            user.setFirstName(request.getFirstName());
-        }
-
-        if (request.getLastName() != null) {
-            user.setLastName(request.getLastName());
-        }
-
-        if (request.getPhone() != null) {
-            user.setPhone(request.getPhone());
-        }
-
-        if (request.getAge() != null) {
-            user.setAge(request.getAge());
+        if (request.getUsername() != null) {
+            user.setUsername(request.getUsername());
         }
 
         if (request.getRoles() != null) {

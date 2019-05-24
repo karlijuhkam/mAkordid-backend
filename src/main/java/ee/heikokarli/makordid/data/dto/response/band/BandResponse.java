@@ -7,9 +7,11 @@ import lombok.Data;
 public class BandResponse {
     private final Long id;
     private final String name;
+    private final Long songCount;
 
     public BandResponse(Band band) {
         id = band.getId();
         name = band.getName();
+        songCount = band.getSongCount();
     }
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ public class UserDto implements Serializable {
         this.phone = user.getPhone();
         this.likedSongsCount = user.getLikedSongsCount();
         this.addedSongsCount = user.getAddedSongsCount();
+        this.createTime = user.getCreateTime();
         this.status = user.getStatus();
     }
     private Long id;
@@ -30,6 +32,7 @@ public class UserDto implements Serializable {
     private int age;
     private List<Role> roles;
     private String phone;
+    private Date createTime;
     private Long likedSongsCount;
     private Long addedSongsCount;
     private User.UserStatus status;

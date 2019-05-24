@@ -11,13 +11,13 @@ import java.util.Set;
 
 @Data
 public class PatchUserRequest implements Serializable {
-    String name;
+    String username;
     String phone;
     Integer age;
     String firstName;
     String lastName;
     @Size(min = 8, message = "Min length 8")
-    String password;
+    String newPassword;
     String oldPassword;
     List<Role> roles;
     User.UserStatus status;

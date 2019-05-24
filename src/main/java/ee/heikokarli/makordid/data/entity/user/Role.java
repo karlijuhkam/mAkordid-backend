@@ -21,6 +21,9 @@ public class Role {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "readable", nullable = false)
+    private String readable;
+
     @Column(name = "create_date", nullable = false, updatable = false)
     @JsonIgnore
     private Date createTime = new Date();

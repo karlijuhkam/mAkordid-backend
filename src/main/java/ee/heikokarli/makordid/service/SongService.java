@@ -70,6 +70,14 @@ public class SongService {
         return songRepository.findAll(spec, pageable);
     }
 
+    public Page<Song> getAddedSongs(Pageable pageable) {
+        Specification<Song> spec = where(null);
+        spec = spec.and(specificUser(userService.getCurrentUser()));
+        spec = spec.and(status(Song.SongStatus.active));
+
+        return songRepository.findAll(spec, pageable);
+    }
+
     public Song modifySong(Long songId, SongRequest request) {
         Song song = this.getSongById(songId);
         return this.setSongData(request, song);

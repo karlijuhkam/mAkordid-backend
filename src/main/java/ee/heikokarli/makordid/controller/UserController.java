@@ -10,6 +10,7 @@ import ee.heikokarli.makordid.data.dto.response.auth.LoginResponse;
 import ee.heikokarli.makordid.data.dto.response.error.ErrorResponse;
 import ee.heikokarli.makordid.data.dto.user.UserDto;
 import ee.heikokarli.makordid.data.entity.auth.AuthToken;
+import ee.heikokarli.makordid.data.entity.user.Role;
 import ee.heikokarli.makordid.data.entity.user.User;
 import ee.heikokarli.makordid.exception.BadRequestException;
 import ee.heikokarli.makordid.exception.user.UserInactiveException;
@@ -32,6 +33,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+
+import java.util.List;
 
 import static org.springframework.data.domain.PageRequest.of;
 
@@ -115,6 +118,16 @@ public class UserController extends AbstractApiController {
 
         return userService.getAllUsers(request, of(page, size, sortDir, sort))
                 .map(UserDto::new);
+    }
+
+    @ApiOperation(
+            value = "Get all user roles",
+            tags = "Users"
+    )
+    @PreAuthorize("hasAnyAuthority('moderator','admin')")
+    @RequestMapping(path = "/roles", method = RequestMethod.GET)
+    public List<Role> getSongList() {
+        return userService.getAllRoles();
     }
 
     @PostMapping("/login")
@@ -205,8 +218,9 @@ public class UserController extends AbstractApiController {
             tags = "Users"
     )
     @RequestMapping(path = "/topusers", method = RequestMethod.GET)
-    public Page<UserDto> getTopFiveByAddedSongsCount() {
-        return userService.getSpecifiedUsers(of(0, 5, Sort.Direction.DESC, "addedSongsCount"))
+    public Page<UserDto> getTopFiveByAddedSongsCount(@RequestParam(defaultValue = "0") Integer page,
+                                                     @RequestParam(defaultValue = "5") Integer size) {
+        return userService.getSpecifiedUsers(of(page, size, Sort.Direction.DESC, "addedSongsCount"))
                 .map(UserDto::new);
     }
 

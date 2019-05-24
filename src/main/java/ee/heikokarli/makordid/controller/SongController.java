@@ -6,6 +6,7 @@ import ee.heikokarli.makordid.data.dto.request.song.SongRequest;
 import ee.heikokarli.makordid.data.dto.response.GenericMessageResponse;
 import ee.heikokarli.makordid.data.dto.response.error.ErrorResponse;
 import ee.heikokarli.makordid.data.dto.response.song.CheckLikeResponse;
+import ee.heikokarli.makordid.data.dto.response.song.SongLikeResponse;
 import ee.heikokarli.makordid.data.dto.response.song.SongResponse;
 import ee.heikokarli.makordid.data.dto.song.SongDto;
 import ee.heikokarli.makordid.data.entity.song.Song;
@@ -220,12 +221,43 @@ public class SongController extends AbstractApiController {
     }
 
     @ApiOperation(
+            value = "Get liked songs",
+            tags = "Songs"
+    )
+    @RequestMapping(path = "/likedsongs", method = RequestMethod.GET)
+    public Page<SongLikeResponse> getLikedSongs(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "createTime") String sort,
+            @RequestParam(defaultValue = "DESC") Sort.Direction sortDir
+    ) {
+        return songLikeService.getLikedSongs(of(page, size, sortDir, sort))
+                .map(SongLikeResponse::new);
+    }
+
+    @ApiOperation(
+            value = "Get added songs",
+            tags = "Songs"
+    )
+    @RequestMapping(path = "/addedsongs", method = RequestMethod.GET)
+    public Page<SongDto> getAddedSongs(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "createTime") String sort,
+            @RequestParam(defaultValue = "DESC") Sort.Direction sortDir
+    ) {
+        return songService.getAddedSongs(of(page, size, sortDir, sort))
+                .map(SongDto::new);
+    }
+
+    @ApiOperation(
             value = "Get top 5 songs by create time",
             tags = "Songs"
     )
     @RequestMapping(path = "/recentsongs", method = RequestMethod.GET)
-    public Page<SongDto> getTopTenByCreateTime() {
-        return songService.getSpecifiedSongs(of(0, 5, Sort.Direction.DESC, "createTime"))
+    public Page<SongDto> getTopTenByCreateTime(@RequestParam(defaultValue = "0") Integer page,
+                                               @RequestParam(defaultValue = "5") Integer size) {
+        return songService.getSpecifiedSongs(of(page, size, Sort.Direction.DESC, "createTime"))
                 .map(SongDto::new);
     }
 
@@ -234,8 +266,9 @@ public class SongController extends AbstractApiController {
             tags = "Songs"
     )
     @RequestMapping(path = "/popularsongs", method = RequestMethod.GET)
-    public Page<SongDto> getTopTenByLikeCount() {
-        return songService.getSpecifiedSongs(of(0, 5, Sort.Direction.DESC, "likeCount"))
+    public Page<SongDto> getTopTenByLikeCount(@RequestParam(defaultValue = "0") Integer page,
+                                              @RequestParam(defaultValue = "5") Integer size) {
+        return songService.getSpecifiedSongs(of(page, size, Sort.Direction.DESC, "likeCount"))
                 .map(SongDto::new);
     }
 

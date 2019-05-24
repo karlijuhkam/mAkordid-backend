@@ -48,7 +48,7 @@ public class User implements Serializable {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Formula("(SELECT COUNT(*) FROM user_likes_song us WHERE us.user_id = id)")
+    @Formula("(SELECT COUNT(*) FROM user_likes_song us JOIN song s ON us.song_id = s.id WHERE us.user_id = id and s.status = 'active')")
     private Long likedSongsCount;
 
     @Formula("(SELECT COUNT(*) FROM song s WHERE s.user_id = id AND s.status = 'active')")

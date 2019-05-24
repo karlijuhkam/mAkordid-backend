@@ -4,12 +4,13 @@ import ee.heikokarli.makordid.data.entity.song.Song;
 import ee.heikokarli.makordid.data.entity.song.SongLike;
 import ee.heikokarli.makordid.data.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface SongLikeRepository extends JpaRepository<SongLike, Long> {
+public interface SongLikeRepository extends JpaRepository<SongLike, Long>, JpaSpecificationExecutor<SongLike> {
 
     Long countSongLikeBySong(Song song);
 
