@@ -14,24 +14,5 @@ services:
   server:
     container_name: server
     build: ./
-    depends_on:
-      - db
-      - redis
     ports:
       - "8080:8080"
-
-  db:
-    image: postgres
-    environment:
-    - POSTGRES_PASSWORD=password
-    - POSTGRES_DB=makordid
-    - PGDATA=/var/lib/postgresql/data/pgdata
-    ports:
-    - 5435:5432
-
-  redis:
-    image: redis:4.0.5-alpine
-    command: ["redis-server", "--appendonly", "yes"]
-    hostname: makordid
-    ports:
-    - 6379:6379
